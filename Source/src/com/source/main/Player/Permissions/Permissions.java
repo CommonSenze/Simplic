@@ -98,15 +98,25 @@ public class Permissions extends Function {
 		return groups;
 	}
 	
-	public Config getFile() {
-		return config;
+	public void setupGroups() {
+		if (getFile().getConfig().getConfigurationSection("Groups")!=null) {
+			for (String s : getFile().getConfig().getConfigurationSection("Groups").getKeys(false)) {
+				groups.add(new Group(s, plugin));
+			}
+			reload();
+		}
 	}
 	
 	public ConfigurationSection getSection(Group group) {
 		return getFile().getConfig().getConfigurationSection("Groups."+group.getName());
 	}
 	
+	public Config getFile() {
+		return config;
+	}
+	
 	public void reload() {
+		config.reloadConfig();
 		uninjectPlayer(Bukkit.getOnlinePlayers());
 		injectPlayer(Bukkit.getOnlinePlayers());
 	}
@@ -116,5 +126,4 @@ public class Permissions extends Function {
 		// TODO Auto-generated method stub
 		
 	}
-
 }
