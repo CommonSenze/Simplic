@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.source.main.Player.UserManager;
 import com.source.main.Player.Permissions.Permissions;
 import com.source.main.Utils.Config;
+import com.source.main.Utils.EventUtil;
 import com.source.main.Utils.Function;
 import com.source.main.Utils.SQLConnection;
 
@@ -48,5 +49,9 @@ public class Main extends JavaPlugin {
 	
 	public Permissions getPermissions() {
 		return permissions;
+	}
+	
+	public EventUtil getEventUtil() {
+		return eventUtil;
 	}
 }

@@ -1,25 +1,18 @@
 package com.source.main.Utils;
 
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.source.main.Main;
+import com.source.main.Game.Game;
 
 public class EventUtil {
 
-	private Main main;
-	private int time = 120;
+	private Main plugin;
 	
-	public void Cooldown(String eventName) {
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				time--;
-				
-				if(time == 0) {
-					
-				}
-			}
-		}.runTaskTimer(main, 0, 20L);
+	public EventUtil(Main plugin) {
+		this.plugin = plugin;
+	}
+	
+	public void startCountdown(Game game, int time) {
+		Countdown countdown = new Countdown(game, plugin, time);
 		
 	}
 	
