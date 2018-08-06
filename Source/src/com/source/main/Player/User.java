@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.source.main.Main;
@@ -53,6 +54,8 @@ public class User extends Function {
 			} else {
 				money = 0;
 			}
+			
+			connection.close();
 		} catch (Exception e) {
 			plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
 			
@@ -93,36 +96,49 @@ public class User extends Function {
 		this.muted = muted;
 	}
 	
+	public void setPrefix(String customPrefix) {
+		this.customPrefix = customPrefix;
+	}
+	
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+	
 	public void unload() {
-		try {
-			Connection connection = plugin.getSQLConnection().connect();
-			
-			PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE UUID = ?");
-			
-			statement.setString(1, player.getUniqueId().toString().replaceAll("-", ""));
-			
-			ResultSet result = statement.executeQuery();
-			
-			if (result.next()) {
-				
-			} else {
-				PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (Player, UUID, Group, Money) VALUES (?,?,?,?)");
-				
-				stmt.setString(1, player.getName());
-				
-				stmt.setString(2, player.getUniqueId().toString().replaceAll("-", ""));
-				
-				stmt.setString(3, (group == null ? "NULL" : group.getName()));
-				
-				stmt.setInt(4, money);
-				
-				stmt.execute();
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			public void run() {
+				try {
+					Connection connection = plugin.getSQLConnection().connect();
+					
+					PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE UUID = ?");
+					
+					statement.setString(1, player.getUniqueId().toString().replaceAll("-", ""));
+					
+					ResultSet result = statement.executeQuery();
+					
+					if (result.next()) {
+						
+					} else {
+						PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (Player, UUID, Group, Money) VALUES (?,?,?,?)");
+						
+						stmt.setString(1, player.getName());
+						
+						stmt.setString(2, player.getUniqueId().toString().replaceAll("-", ""));
+						
+						stmt.setString(3, (group == null ? "NULL" : group.getName()));
+						
+						stmt.setInt(4, money);
+						
+						stmt.execute();
+					}
+					
+					connection.close();
+				} catch (Exception e) {
+					plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
+					
+					e.printStackTrace();
+				}
 			}
-			
-		} catch (Exception e) {
-			plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
-			
-			e.printStackTrace();
-		}
+		});
 	}
 }

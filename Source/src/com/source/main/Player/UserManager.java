@@ -30,6 +30,10 @@ public class UserManager extends Function {
 		return users.containsKey(uuid);
 	}
 	
+	public User get(Player player) {
+		return users.get(player.getUniqueId());
+	}
+	
 	public void unload() {
 		users.clear();
 	}

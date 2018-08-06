@@ -1,5 +1,8 @@
 package com.source.main.Player.Permissions;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,13 +25,13 @@ public class Permissions extends Function {
 	private Config config;
 	private HashMap<UUID, PermissionAttachment> permissions = new HashMap<>();	
 	private ArrayList<Group> groups = new ArrayList<>();
-	
+
 	public Permissions(Main plugin) {
 		this.plugin = plugin;
 		config = new Config(Settings.PERMISSIONS_FILE);
 		plugin.add(this);
 	}
-	
+
 	public void injectPlayer(Player... pl) {
 		for (Player p : pl) {
 			if (permissions.get(p.getUniqueId()) == null) permissions.put(p.getUniqueId(), p.addAttachment(plugin));
@@ -74,7 +77,7 @@ public class Permissions extends Function {
 		pl.removeAttachment(permissions.get(pl.getUniqueId()));
 		permissions.remove(pl.getUniqueId());
 	}
-	
+
 	public void uninjectPlayer(Collection<? extends Player> pl) {
 		for (Player p : pl) {
 			if (permissions.get(p.getUniqueId()) == null) return;
@@ -82,22 +85,40 @@ public class Permissions extends Function {
 			permissions.remove(p.getUniqueId());
 		}
 	}
-	
+
 	public Group getPlayerGroup(UUID uuid) {
-		return getGroup(getFile().getConfig().getString("Users."+uuid+".Group"));
+		try {
+			Connection connection = plugin.getSQLConnection().connect();
+
+			PreparedStatement statement = connection.prepareStatement("SELECT Group FROM users WHERE UUID = ?");
+
+			statement.setString(1, uuid.toString().replaceAll("-", ""));
+
+			ResultSet result = statement.executeQuery();
+
+			if (result.next())
+				return getGroup(result.getString("Group"));
+			
+			connection.close();
+		} catch (Exception e) {
+			plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
+
+			e.printStackTrace();
+		}
+		return null;
 	}
-	
+
 	public Group getGroup(String name) {
 		for (Group group : groups) {
 			if (group.getName().equalsIgnoreCase(name))return group;
 		}
 		return null;
 	}
-	
+
 	public ArrayList<Group> getGroups(){
 		return groups;
 	}
-	
+
 	public void setupGroups() {
 		if (getFile().getConfig().getConfigurationSection("Groups")!=null) {
 			for (String s : getFile().getConfig().getConfigurationSection("Groups").getKeys(false)) {
@@ -106,24 +127,24 @@ public class Permissions extends Function {
 			reload();
 		}
 	}
-	
+
 	public ConfigurationSection getSection(Group group) {
 		return getFile().getConfig().getConfigurationSection("Groups."+group.getName());
 	}
-	
+
 	public Config getFile() {
 		return config;
 	}
-	
+
 	public void reload() {
 		config.reloadConfig();
 		uninjectPlayer(Bukkit.getOnlinePlayers());
 		injectPlayer(Bukkit.getOnlinePlayers());
 	}
-	
+
 	@Override
 	public void unload() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
