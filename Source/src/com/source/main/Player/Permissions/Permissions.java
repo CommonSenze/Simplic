@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
@@ -25,22 +26,23 @@ public class Permissions extends Function {
 	public Permissions(Main plugin) {
 		this.plugin = plugin;
 		config = new Config(Settings.PERMISSIONS_FILE);
+		plugin.add(this);
 	}
 	
 	public void injectPlayer(Player... pl) {
 		for (Player p : pl) {
-			if (permissions.get(p.getName()) == null) permissions.put(p.getName(), p.addAttachment(plugin));
+			if (permissions.get(p.getUniqueId()) == null) permissions.put(p.getUniqueId(), p.addAttachment(plugin));
 			Group group = getPlayerGroup(p.getUniqueId());
 			if (group != null) {
 				for (Group g : getGroups()) {
 					if (g.getRanking() < group.getRanking()) {
-						for (String perm : g.getPerms()) {
-							permissions.get(p.getName()).setPermission(perm, true);
+						for (String perm : g.getPermissions()) {
+							permissions.get(p.getUniqueId()).setPermission(perm, true);
 						}
 					}
 				}
-				for (String perm : group.getPerms()) {
-					permissions.get(p.getName()).setPermission(perm, true);
+				for (String perm : group.getPermissions()) {
+					permissions.get(p.getUniqueId()).setPermission(perm, true);
 				}
 			}
 		}
@@ -55,12 +57,12 @@ public class Permissions extends Function {
 			if (group != null) {
 				for (Group g : getGroups()) {
 					if (g.getRanking() <= group.getRanking()) {
-						for (String perm : g.getPerms()) {
+						for (String perm : g.getPermissions()) {
 							permissions.get(p.getUniqueId()).setPermission(perm, true);
 						}
 					}
 				}
-				for (String perm : group.getPerms()) {
+				for (String perm : group.getPermissions()) {
 					permissions.get(p.getUniqueId()).setPermission(perm, true);
 				}
 			}
@@ -73,12 +75,40 @@ public class Permissions extends Function {
 		permissions.remove(pl.getUniqueId());
 	}
 	
+	public void uninjectPlayer(Collection<? extends Player> pl) {
+		for (Player p : pl) {
+			if (permissions.get(p.getUniqueId()) == null) return;
+			p.removeAttachment(permissions.get(p.getUniqueId()));
+			permissions.remove(p.getUniqueId());
+		}
+	}
+	
+	public Group getPlayerGroup(UUID uuid) {
+		return getGroup(getFile().getConfig().getString("Users."+uuid+".Group"));
+	}
+	
+	public Group getGroup(String name) {
+		for (Group group : groups) {
+			if (group.getName().equalsIgnoreCase(name))return group;
+		}
+		return null;
+	}
+	
+	public ArrayList<Group> getGroups(){
+		return groups;
+	}
+	
 	public Config getFile() {
 		return config;
 	}
 	
 	public ConfigurationSection getSection(Group group) {
-		return getFile().getConfig().getConfigurationSection("Groups."+group.get)
+		return getFile().getConfig().getConfigurationSection("Groups."+group.getName());
+	}
+	
+	public void reload() {
+		uninjectPlayer(Bukkit.getOnlinePlayers());
+		injectPlayer(Bukkit.getOnlinePlayers());
 	}
 	
 	@Override
