@@ -1,5 +1,7 @@
 package com.source.main.Commands.Util;
 
+import org.bukkit.command.CommandSender;
+
 public abstract class Commands {
 
 	private String command, description;
@@ -17,5 +19,5 @@ public abstract class Commands {
 		return description;
 	}
 	
-	public abstract void run();
+	public abstract void run(CommandSender sender, String[] args);
 }

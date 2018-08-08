@@ -34,8 +34,7 @@ public class CommandManager extends Function implements CommandExecutor {
 		for (Commands command : commands) {
 			if (command.getCommand().equalsIgnoreCase(cmd.getName())) {
 				try {
-
-					command.run();
+					command.run(sender, args);
 				} catch (Exception e) {
 					sender.sendMessage(Settings.UNKNOWN_ERROR);
 					e.printStackTrace();
