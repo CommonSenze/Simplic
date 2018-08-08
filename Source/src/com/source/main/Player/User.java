@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.source.main.Main;
@@ -84,6 +83,10 @@ public class User extends Function {
 		return group;
 	}
 	
+	public boolean hasGroup() {
+		return group!= null;
+	}
+	
 	public String getPrefix() {
 		return customPrefix;
 	}
@@ -103,42 +106,43 @@ public class User extends Function {
 	public void setGroup(Group group) {
 		this.group = group;
 	}
-	
+
+	@Override
 	public void unload() {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			public void run() {
-				try {
-					Connection connection = plugin.getSQLConnection().connect();
-					
-					PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE UUID = ?");
-					
-					statement.setString(1, player.getUniqueId().toString().replaceAll("-", ""));
-					
-					ResultSet result = statement.executeQuery();
-					
-					if (result.next()) {
-						
-					} else {
-						PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (Player, UUID, Group, Money) VALUES (?,?,?,?)");
-						
-						stmt.setString(1, player.getName());
-						
-						stmt.setString(2, player.getUniqueId().toString().replaceAll("-", ""));
-						
-						stmt.setString(3, (group == null ? "NULL" : group.getName()));
-						
-						stmt.setInt(4, money);
-						
-						stmt.execute();
-					}
-					
-					connection.close();
-				} catch (Exception e) {
-					plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
-					
-					e.printStackTrace();
-				}
+		try {
+			Connection connection = plugin.getSQLConnection().connect();
+			
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE UUID = ?");
+			
+			statement.setString(1, player.getUniqueId().toString().replaceAll("-", ""));
+			
+			ResultSet result = statement.executeQuery();
+			
+			if (result.next()) {
+				PreparedStatement stmt = connection.prepareStatement("UPDATE users SET Money = ?, Group = ?, Player = ? WHERE UUID = ?");
+				
+				stmt.setInt(1, money);
+				stmt.setString(2, (hasGroup() ? group.getName() : "NULL"));
+				stmt.setString(3, player.getName());
+				stmt.setString(4, player.getUniqueId().toString().replaceAll("-", ""));
+				
+				stmt.executeUpdate();
+			} else {
+				PreparedStatement stmt = connection.prepareStatement("INSERT INTO users (Player, UUID, Money, Group) VALUES (?,?,?,?)");
+				
+				stmt.setString(1, player.getName());
+				stmt.setString(2, player.getUniqueId().toString().replaceAll("-", ""));
+				stmt.setInt(3, money);
+				stmt.setString(4, (hasGroup() ? group.getName() : "NULL"));
+				
+				stmt.execute();
 			}
-		});
+			
+			connection.close();
+		} catch (Exception e) {
+			plugin.getLogger().severe(Settings.UNKNOWN_ERROR);
+			
+			e.printStackTrace();
+		}
 	}
 }

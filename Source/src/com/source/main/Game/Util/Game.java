@@ -1,4 +1,4 @@
-package com.source.main.Game;
+package com.source.main.Game.Util;
 
 public abstract class Game {
 
@@ -19,4 +19,8 @@ public abstract class Game {
 	}
 	
 	public abstract void start();
+	
+	public abstract void end();
+	
+	public abstract boolean isSolo();
 }

@@ -1,7 +1,7 @@
 package com.source.main.Utils;
 
 import com.source.main.Main;
-import com.source.main.Game.Game;
+import com.source.main.Game.Util.Game;
 
 public class EventUtil {
 
@@ -14,6 +14,7 @@ public class EventUtil {
 	public void startCountdown(Game game, int time) {
 		Countdown countdown = new Countdown(game, plugin, time);
 		
+		plugin.getGameManager().setCountdown(countdown);
 	}
 	
 }

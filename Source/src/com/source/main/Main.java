@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.source.main.Game.GameManager;
 import com.source.main.Player.UserManager;
 import com.source.main.Player.Permissions.Permissions;
 import com.source.main.Utils.Config;
@@ -18,6 +19,7 @@ public class Main extends JavaPlugin {
 	private SQLConnection sqlConnection;
 	private Permissions permissions;
 	private EventUtil eventUtil;
+	private GameManager gameManager;
 	
 	public void onEnable() {
 		Config.register(this);
@@ -26,10 +28,12 @@ public class Main extends JavaPlugin {
 		sqlConnection = new SQLConnection();
 		permissions = new Permissions(this);
 		eventUtil = new EventUtil(this);
+		gameManager = new GameManager(this);
 	}
 	
 	public void onDisable() {
 		for (Function function : functions) {
+			getLogger().info("Unloading class - "+function.getClass().getName());
 			function.unload();
 		}
 		functions.clear();
@@ -41,6 +45,10 @@ public class Main extends JavaPlugin {
 	
 	public UserManager getUserManager() {	
 		return userManager;
+	}
+	
+	public GameManager getGameManager() {
+		return gameManager;
 	}
 	
 	public SQLConnection getSQLConnection() {
