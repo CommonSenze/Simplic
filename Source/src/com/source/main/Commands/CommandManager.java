@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 
 import com.source.main.Main;
 import com.source.main.Commands.Util.Commands;
+import com.source.main.Utils.Settings;
 
 public class CommandManager implements CommandExecutor {
 
@@ -28,6 +29,7 @@ public class CommandManager implements CommandExecutor {
 			try {
 				command.run();
 			} catch (Exception e) {
+				sender.sendMessage(Settings.UNKNOWN_ERROR);
 				e.printStackTrace();
 			}
 		}

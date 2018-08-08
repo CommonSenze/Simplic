@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.source.main.Commands.CommandManager;
 import com.source.main.Game.GameManager;
 import com.source.main.Player.UserManager;
 import com.source.main.Player.Permissions.Permissions;
@@ -20,6 +21,7 @@ public class Main extends JavaPlugin {
 	private Permissions permissions;
 	private EventUtil eventUtil;
 	private GameManager gameManager;
+	private CommandManager commandManager;
 	
 	public void onEnable() {
 		Config.register(this);
@@ -29,6 +31,7 @@ public class Main extends JavaPlugin {
 		permissions = new Permissions(this);
 		eventUtil = new EventUtil(this);
 		gameManager = new GameManager(this);
+		commandManager = new CommandManager(this);
 	}
 	
 	public void onDisable() {
@@ -45,6 +48,10 @@ public class Main extends JavaPlugin {
 	
 	public UserManager getUserManager() {	
 		return userManager;
+	}
+	
+	public CommandManager getCommandManager() {
+		return commandManager;
 	}
 	
 	public GameManager getGameManager() {
