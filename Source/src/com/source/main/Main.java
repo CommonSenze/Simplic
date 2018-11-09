@@ -4,34 +4,42 @@ import java.util.ArrayList;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.source.main.Commands.CommandManager;
-import com.source.main.Game.GameManager;
-import com.source.main.Player.UserManager;
 import com.source.main.Player.Permissions.Permissions;
-import com.source.main.Utils.Config;
-import com.source.main.Utils.EventUtil;
-import com.source.main.Utils.Function;
-import com.source.main.Utils.SQLConnection;
+
+import me.commonsenze.main.Util.Config;
+import me.commonsenze.main.Util.EventUtil;
+import me.commonsenze.main.Util.Function;
+import me.commonsenze.main.Util.SQLConnection;
+import me.commonsenze.main.Util.Source;
+import me.commonsenze.main.Util.Managers.CommandManager;
+import me.commonsenze.main.Util.Managers.GameManager;
+import me.commonsenze.main.Util.Managers.SuperBoardManager;
 
 public class Main extends JavaPlugin {
 
 	private ArrayList<Function> functions = new ArrayList<>();
-	private UserManager userManager;
+	private static Main instance;
 	private SQLConnection sqlConnection;
 	private Permissions permissions;
 	private EventUtil eventUtil;
 	private GameManager gameManager;
 	private CommandManager commandManager;
+	private SuperBoardManager superBoardManager;
+	
+	public static Main getInstance() {
+		return instance;
+	}
 	
 	public void onEnable() {
+		instance = this;
 		Config.register(this);
-		
-		userManager = new UserManager(this);
+
 		sqlConnection = new SQLConnection();
 		permissions = new Permissions(this);
 		eventUtil = new EventUtil(this);
 		gameManager = new GameManager(this);
 		commandManager = new CommandManager(this);
+		superBoardManager = new SuperBoardManager();
 	}
 	
 	public void onDisable() {
@@ -46,8 +54,16 @@ public class Main extends JavaPlugin {
 		functions.add(function);
 	}
 	
-	public UserManager getUserManager() {	
-		return userManager;
+	public void remove(Function function) {
+		functions.remove(function);
+	}
+	
+	public Source getSource() {
+		return Source.getInstance();
+	}
+	
+	public SuperBoardManager getSuperBoardManager() {
+		return superBoardManager;
 	}
 	
 	public CommandManager getCommandManager() {

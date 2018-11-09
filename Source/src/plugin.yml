@@ -1,0 +1,4 @@
+name: Source
+version: 1.0
+main: com.source.main.Main
+loadbefore: [Common]
